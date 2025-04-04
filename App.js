@@ -1,23 +1,41 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import * as React from 'react';
+import { View, Text } from 'react-native';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { Button } from '@react-navigation/elements';
 
-export default function App() {
+function HomeScreen() {
+  const navigation = useNavigation();
+
   return (
-    <View style={styles.container}>
-      <Text>Welcome to our expo app, the SpeakPoint!</Text>
-      <Text style={{textAlign:"center"}}>In here, you can save your daily notes through speaking or texting</Text>
-      <Text>Give it a try with this button:</Text>
-      <Button title="SAVE"></Button>
-      <StatusBar style="auto" />
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', }}>
+      <Text style={{textAlign: 'center'}}>Welcome to our expo app, the SpeakPoint! With this application, you can save your daily notes and thoughts through speaking and texting</Text>
+      <Button onPress={() => navigation.navigate('Notifications')}>
+        Go to notifications
+      </Button>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+function NotificationsScreen() {
+  const navigation = useNavigation();
+
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Button onPress={() => navigation.goBack()}>Go back home</Button>
+    </View>
+  );
+}
+
+const Drawer = createDrawerNavigator();
+
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Drawer.Navigator initialRouteName="Home">
+        <Drawer.Screen name="Home" component={HomeScreen} />
+        <Drawer.Screen name="Notifications" component={NotificationsScreen} />
+      </Drawer.Navigator>
+    </NavigationContainer>
+  );
+}
