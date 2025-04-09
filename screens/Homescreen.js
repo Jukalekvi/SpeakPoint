@@ -11,6 +11,7 @@ const HomeScreen = () => {
         Welcome to our expo app, the SpeakPoint! With this application, you can save your daily notes and thoughts through speaking and texting.
       </Text>
       <Button title="Go to Calendar" onPress={() => navigation.navigate('Calendar')} />
+      <Button title="Go to Diary" onPress={() => navigation.navigate('Diary')} />
     </View>
   );
 };
