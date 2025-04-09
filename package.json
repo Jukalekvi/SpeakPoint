@@ -9,6 +9,8 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@react-native-firebase/app": "^21.13.0",
+    "@react-native-firebase/firestore": "^21.13.0",
     "@react-navigation/drawer": "^7.3.7",
     "expo": "~52.0.43",
     "expo-status-bar": "~2.0.1",
