@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, FlatList, TextInput } from 'react-native';
+import { View, Text, Button, StyleSheet, FlatList, TextInput, TouchableOpacity } from 'react-native';
 import { database } from '../firebaseConfig';
-import { ref, push, onValue } from 'firebase/database';
+import { ref, push, onValue, remove } from 'firebase/database';
 
 export default function DiaryScreen() {
   const [entry, setEntry] = useState('');
@@ -40,6 +40,11 @@ export default function DiaryScreen() {
       setEntry('');
     }
   };
+  //Datan poisto
+  const deleteEntry = (id) => {
+    const entryRef = ref(database, `entries/${id}`);
+    remove(entryRef);
+  };
 
   return (
     <View style={styles.container}>
@@ -61,6 +66,12 @@ export default function DiaryScreen() {
           <View style={styles.entryContainer}>
             <Text style={styles.date}>{item.date}</Text>
             <Text>{item.text}</Text>
+            <TouchableOpacity
+              onPress={() => deleteEntry(item.id)}
+              style={styles.deleteButton}
+            >
+              <Text style={styles.deleteButtonText}>Poista</Text>
+            </TouchableOpacity>
           </View>
         )}
       />
@@ -93,5 +104,15 @@ const styles = StyleSheet.create({
   date: {
     fontWeight: 'bold',
     marginBottom: 5,
+  },
+  deleteButton: {
+    marginTop: 5,
+    backgroundColor: '#ff6666',
+    padding: 5,
+    borderRadius: 5,
+    alignSelf: 'flex-start',
+  },
+  deleteButtonText: {
+    color: 'white',
   },
 });
