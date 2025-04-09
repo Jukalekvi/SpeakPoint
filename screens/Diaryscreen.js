@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, FlatList, TextInput, TouchableOpacity } from 'react-native';
+import { Alert, View, Text, Button, StyleSheet, FlatList, TextInput, TouchableOpacity } from 'react-native';
 import { database } from '../firebaseConfig';
 import { ref, push, onValue, remove } from 'firebase/database';
 
@@ -42,8 +42,24 @@ export default function DiaryScreen() {
   };
   //Datan poisto
   const deleteEntry = (id) => {
-    const entryRef = ref(database, `entries/${id}`);
-    remove(entryRef);
+    Alert.alert(
+      "Delete Entry",
+      "Are you sure you want to delete this entry?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Delete",
+          onPress: () => {
+            const entryRef = ref(database, `entries/${id}`);
+            remove(entryRef);
+          },
+          style: "destructive"
+        }
+      ]
+    );
   };
 
   return (
@@ -70,7 +86,7 @@ export default function DiaryScreen() {
               onPress={() => deleteEntry(item.id)}
               style={styles.deleteButton}
             >
-              <Text style={styles.deleteButtonText}>Poista</Text>
+              <Text style={styles.deleteButtonText}>Delete</Text>
             </TouchableOpacity>
           </View>
         )}
