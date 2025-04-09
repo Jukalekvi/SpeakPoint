@@ -1,134 +1,202 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, View, Text, Button, StyleSheet, FlatList, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, FlatList, Alert, StyleSheet, Modal } from 'react-native';
+import { ref, onValue, set, remove } from 'firebase/database';
 import { database } from '../firebaseConfig';
-import { ref, push, onValue, remove } from 'firebase/database';
 
-export default function DiaryScreen() {
-  const [entry, setEntry] = useState('');
+// DiaryScreen-komponentti hoitaa päiväkirjamerkintöjen näyttämisen, lisäämisen, muokkaamisen ja poistamisen
+const DiaryScreen = () => {
+  // Tilamuuttujat: tekstikenttä, merkinnät, muokkaustila ja modaalin näkyvyys
+  const [text, setText] = useState('');
   const [entries, setEntries] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const [editingText, setEditingText] = useState('');
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
-  // Hae merkinnät tietokannasta, kun näkymä latautuu
+  // Haetaan merkinnät tietokannasta, kun komponentti ladataan
   useEffect(() => {
     const entriesRef = ref(database, 'entries');
     const unsubscribe = onValue(entriesRef, (snapshot) => {
       const data = snapshot.val();
-      if (data) {
-        const loadedEntries = Object.keys(data).map(key => ({
-          id: key,
-          ...data[key],
-        }));
-        setEntries(loadedEntries);
-      } else {
-        setEntries([]);
-      }
+      const entryList = data ? Object.entries(data).map(([id, value]) => ({ id, ...value })) : [];
+      setEntries(entryList.reverse()); // Käännetään järjestys uusimmat ensin
     });
-
-    return () => unsubscribe(); // Puhdistetaan kuuntelija kun komponentti poistuu
+    return () => unsubscribe();
   }, []);
 
-  //Mahdollisuus lisätä uusia tekstejä tietokantaan
-  const addEntry = () => {
-    if (entry.trim()) {
-      const newEntry = {
-        text: entry,
+  // Tallennetaan uusi merkintä tietokantaan
+  const saveEntry = () => {
+    if (text.trim()) {
+      const newEntryRef = ref(database, 'entries/' + Date.now());
+      set(newEntryRef, {
+        text,
         date: new Date().toLocaleDateString(),
-      };
-
-      const entriesRef = ref(database, 'entries');
-      push(entriesRef, newEntry);
-
-      setEntry('');
+      });
+      setText('');
     }
   };
-  //Datan poisto
-  const deleteEntry = (id) => {
+
+  // Näytetään varmistusikkuna ennen merkinnän poistamista
+  const confirmDelete = (id) => {
     Alert.alert(
-      "Delete Entry",
-      "Are you sure you want to delete this entry?",
+      'Poista merkintä',
+      'Haluatko varmasti poistaa tämän merkinnän?',
       [
+        { text: 'Peruuta', style: 'cancel' },
         {
-          text: "Cancel",
-          style: "cancel"
-        },
-        {
-          text: "Delete",
+          text: 'Poista',
           onPress: () => {
             const entryRef = ref(database, `entries/${id}`);
             remove(entryRef);
           },
-          style: "destructive"
-        }
-      ]
+          style: 'destructive',
+        },
+      ],
+      { cancelable: true }
     );
+  };
+
+  // Avaa muokkausikkunan tietylle merkinnälle
+  const startEditing = (id, text) => {
+    setEditingId(id);
+    setEditingText(text);
+    setIsModalVisible(true);
+  };
+
+  // Tallennetaan muokattu merkintä ja suljetaan modaali
+  const saveEdit = () => {
+    if (editingText.trim()) {
+      const entryRef = ref(database, `entries/${editingId}`);
+      set(entryRef, {
+        text: editingText,
+        date: new Date().toLocaleDateString(),
+      });
+      setEditingId(null);
+      setEditingText('');
+      setIsModalVisible(false);
+    }
+  };
+
+  // Peruutetaan muokkaus ja suljetaan modaali
+  const cancelEditing = () => {
+    setEditingId(null);
+    setEditingText('');
+    setIsModalVisible(false);
   };
 
   return (
     <View style={styles.container}>
-      <Text>
-        Welcome to the Diary section! Here you can save the text (for now) for the day which you can also view later.
-      </Text>
+      {/* Otsikko ja syöttökenttä */}
+      <Text style={styles.header}>Päiväkirja</Text>
       <TextInput
-        style={styles.textscreen}
-        placeholder='Write today’s thoughts here'
-        value={entry}
-        onChangeText={setEntry}
-        multiline={true}
+        style={styles.input}
+        placeholder="Kirjoita ajatuksesi..."
+        value={text}
+        onChangeText={setText}
+        multiline
       />
-      <Button title="Add a daily entry" onPress={addEntry} />
+      <Button title="Tallenna" onPress={saveEntry} />
+
+      {/* Lista päiväkirjamerkinnöistä */}
       <FlatList
         data={entries}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.entryContainer}>
+          <View style={styles.entry}>
             <Text style={styles.date}>{item.date}</Text>
-            <Text>{item.text}</Text>
-            <TouchableOpacity
-              onPress={() => deleteEntry(item.id)}
-              style={styles.deleteButton}
-            >
-              <Text style={styles.deleteButtonText}>Delete</Text>
-            </TouchableOpacity>
+            <Text style={styles.entryText}>{item.text}</Text>
+            <View style={styles.buttonRow}>
+              <Button title="Muokkaa" onPress={() => startEditing(item.id, item.text)} />
+              <Button title="Poista" color="red" onPress={() => confirmDelete(item.id)} />
+            </View>
           </View>
         )}
       />
+
+      {/* Modaali muokkausta varten */}
+      <Modal
+        visible={isModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={cancelEditing}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text>Muokkaa merkintää</Text>
+            <TextInput
+              style={styles.modalInput}
+              value={editingText}
+              onChangeText={setEditingText}
+              multiline
+            />
+            <View style={styles.buttonRow}>
+              <Button title="Tallenna" onPress={saveEdit} />
+              <Button title="Peruuta" onPress={cancelEditing} color="gray" />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
-}
+};
 
+export default DiaryScreen;
+
+// Tyylit käyttöliittymää varten
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 10,
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingHorizontal: 10,
+    padding: 20,
+    backgroundColor: '#fff',
   },
-  textscreen: {
-    borderWidth: 1,
-    width: '100%',
-    height: 150,
-    marginTop: 10,
+  header: {
+    fontSize: 24,
     marginBottom: 10,
-    textAlign: 'center',
-    padding: 10,
+    fontWeight: 'bold',
   },
-  entryContainer: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    paddingVertical: 10,
+  input: {
+    borderWidth: 1,
+    borderColor: '#aaa',
+    padding: 10,
+    marginBottom: 10,
+    height: 100,
+    textAlignVertical: 'top',
+  },
+  entry: {
+    padding: 10,
+    marginVertical: 5,
+    backgroundColor: '#f2f2f2',
+    borderRadius: 5,
+  },
+  entryText: {
+    fontSize: 16,
   },
   date: {
-    fontWeight: 'bold',
+    fontSize: 12,
+    color: '#666',
     marginBottom: 5,
   },
-  deleteButton: {
-    marginTop: 5,
-    backgroundColor: '#ff6666',
-    padding: 5,
-    borderRadius: 5,
-    alignSelf: 'flex-start',
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
   },
-  deleteButtonText: {
-    color: 'white',
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: '90%',
+  },
+  modalInput: {
+    height: 100,
+    borderWidth: 1,
+    padding: 10,
+    marginVertical: 10,
+    textAlignVertical: 'top',
   },
 });

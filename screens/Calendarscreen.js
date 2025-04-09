@@ -5,7 +5,7 @@ import { Calendar } from 'react-native-calendars';
 
 const CalendarScreen = () => {
   const navigation = useNavigation();
-  //Testdata to see the different colored circles
+  //Testidata eriväristen ympyröiden näkemiseen kalenterissa
   const markedDates = {
     '2025-04-09': { marked: true, dotColor: 'blue' },
     '2025-04-08': { marked: true, dotColor: 'green' },
