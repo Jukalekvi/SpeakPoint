@@ -38,12 +38,12 @@ const DiaryScreen = () => {
   // Näytetään varmistusikkuna ennen merkinnän poistamista
   const confirmDelete = (id) => {
     Alert.alert(
-      'Poista merkintä',
-      'Haluatko varmasti poistaa tämän merkinnän?',
+      'Delete Entry',
+      'Are you sure you want to delete this entry?',
       [
-        { text: 'Peruuta', style: 'cancel' },
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Poista',
+          text: 'Delete',
           onPress: () => {
             const entryRef = ref(database, `entries/${id}`);
             remove(entryRef);
@@ -86,15 +86,15 @@ const DiaryScreen = () => {
   return (
     <View style={styles.container}>
       {/* Otsikko ja syöttökenttä */}
-      <Text style={styles.header}>Päiväkirja</Text>
+      <Text style={styles.header}>Diary</Text>
       <TextInput
         style={styles.input}
-        placeholder="Kirjoita ajatuksesi..."
+        placeholder="Write your thoughts..."
         value={text}
         onChangeText={setText}
         multiline
       />
-      <Button title="Tallenna" onPress={saveEntry} />
+      <Button title="Save" onPress={saveEntry} />
 
       {/* Lista päiväkirjamerkinnöistä */}
       <FlatList
@@ -105,8 +105,8 @@ const DiaryScreen = () => {
             <Text style={styles.date}>{item.date}</Text>
             <Text style={styles.entryText}>{item.text}</Text>
             <View style={styles.buttonRow}>
-              <Button title="Muokkaa" onPress={() => startEditing(item.id, item.text)} />
-              <Button title="Poista" color="red" onPress={() => confirmDelete(item.id)} />
+              <Button title="Edit" onPress={() => startEditing(item.id, item.text)} />
+              <Button title="Delete" color="red" onPress={() => confirmDelete(item.id)} />
             </View>
           </View>
         )}
@@ -121,7 +121,7 @@ const DiaryScreen = () => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text>Muokkaa merkintää</Text>
+            <Text>Edit Entry</Text>
             <TextInput
               style={styles.modalInput}
               value={editingText}
@@ -129,8 +129,8 @@ const DiaryScreen = () => {
               multiline
             />
             <View style={styles.buttonRow}>
-              <Button title="Tallenna" onPress={saveEdit} />
-              <Button title="Peruuta" onPress={cancelEditing} color="gray" />
+              <Button title="Save" onPress={saveEdit} />
+              <Button title="Cancel" onPress={cancelEditing} color="gray" />
             </View>
           </View>
         </View>
