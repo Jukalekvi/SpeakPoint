@@ -11,12 +11,15 @@ export default function DiaryScreen() {
     if (entry.trim()) {
       const newEntry = {
         id: Date.now().toString(),
-        text: entry
-      }
+        text: entry,
+        date: new Date().toLocaleDateString(),
+      };
       setEntries([...entries, newEntry]);
       setEntry('');
-  }
-};
+    }
+  };
+
+
 
   return (
     <View style={styles.container}>
@@ -34,6 +37,7 @@ export default function DiaryScreen() {
       keyExtractor={(item) => item.id}
       renderItem={({item}) => (
         <View>
+          <Text style={styles.date}>{item.date}</Text>
           <Text>{item.text}</Text>
         </View>
       )}
@@ -56,5 +60,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
     textAlign:'center',
+  },
+  date:{
+    fontWeight:'bold',
+    marginBottom: 5,
   },
 });
