@@ -1,91 +1,113 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, FlatList, Alert, StyleSheet, Modal } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  FlatList,
+  Alert,
+  StyleSheet,
+  Modal,
+} from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { ref, onValue, set, remove } from 'firebase/database';
 import { database } from '../firebaseConfig';
 
-// DiaryScreen-komponentti hoitaa päiväkirjamerkintöjen näyttämisen, lisäämisen, muokkaamisen ja poistamisen
+// Arvion selitteet
+const ratingLabels = {
+  1: 'Very Bad',
+  2: 'Bad',
+  3: 'Okay',
+  4: 'Good',
+  5: 'Excellent',
+};
+
+// Päiväkirjakomponentti
 const DiaryScreen = () => {
-  // Tilamuuttujat: tekstikenttä, merkinnät, muokkaustila ja modaalin näkyvyys
   const [text, setText] = useState('');
+  const [rating, setRating] = useState(null);
   const [entries, setEntries] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editingText, setEditingText] = useState('');
+  const [editingRating, setEditingRating] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  // Haetaan merkinnät tietokannasta, kun komponentti ladataan
+  // Haetaan merkinnät tietokannasta
   useEffect(() => {
     const entriesRef = ref(database, 'entries');
     const unsubscribe = onValue(entriesRef, (snapshot) => {
       const data = snapshot.val();
-      const entryList = data ? Object.entries(data).map(([id, value]) => ({ id, ...value })) : [];
-      setEntries(entryList.reverse()); // Käännetään järjestys uusimmat ensin
+      const entryList = data
+        ? Object.entries(data).map(([id, value]) => ({ id, ...value }))
+        : [];
+      setEntries(entryList.reverse());
     });
     return () => unsubscribe();
   }, []);
 
-  // Tallennetaan uusi merkintä tietokantaan
+  // Tallennetaan uusi merkintä
   const saveEntry = () => {
-    if (text.trim()) {
+    if (text.trim() && rating) {
       const newEntryRef = ref(database, 'entries/' + Date.now());
       set(newEntryRef, {
         text,
+        rating,
         date: new Date().toLocaleDateString(),
       });
       setText('');
+      setRating(null);
     }
   };
 
-  // Näytetään varmistusikkuna ennen merkinnän poistamista
+  // Vahvistetaan poisto
   const confirmDelete = (id) => {
-    Alert.alert(
-      'Delete Entry',
-      'Are you sure you want to delete this entry?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          onPress: () => {
-            const entryRef = ref(database, `entries/${id}`);
-            remove(entryRef);
-          },
-          style: 'destructive',
+    Alert.alert('Delete Entry', 'Are you sure you want to delete this entry?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        onPress: () => {
+          const entryRef = ref(database, `entries/${id}`);
+          remove(entryRef);
         },
-      ],
-      { cancelable: true }
-    );
+        style: 'destructive',
+      },
+    ]);
   };
 
-  // Avaa muokkausikkunan tietylle merkinnälle
-  const startEditing = (id, text) => {
+  // Muokkauksen aloitus
+  const startEditing = (id, text, rating) => {
     setEditingId(id);
     setEditingText(text);
+    setEditingRating(rating);
     setIsModalVisible(true);
   };
 
-  // Tallennetaan muokattu merkintä ja suljetaan modaali
+  // Tallennetaan muokattu merkintä
   const saveEdit = () => {
-    if (editingText.trim()) {
+    if (editingText.trim() && editingRating) {
       const entryRef = ref(database, `entries/${editingId}`);
       set(entryRef, {
         text: editingText,
+        rating: editingRating,
         date: new Date().toLocaleDateString(),
       });
       setEditingId(null);
       setEditingText('');
+      setEditingRating(null);
       setIsModalVisible(false);
     }
   };
 
-  // Peruutetaan muokkaus ja suljetaan modaali
+  // Peruuta muokkaus
   const cancelEditing = () => {
     setEditingId(null);
     setEditingText('');
+    setEditingRating(null);
     setIsModalVisible(false);
   };
 
   return (
     <View style={styles.container}>
-      {/* Otsikko ja syöttökenttä */}
       <Text style={styles.header}>Diary</Text>
       <TextInput
         style={styles.input}
@@ -94,9 +116,25 @@ const DiaryScreen = () => {
         onChangeText={setText}
         multiline
       />
+
+      <Text style={styles.label}>Choose your day's rating from here:</Text>
+      <Picker
+        selectedValue={rating}
+        onValueChange={(itemValue) => setRating(itemValue)}
+        style={styles.picker}
+      >
+        <Picker.Item label="-- Select rating --" value={null} />
+        {Object.entries(ratingLabels).map(([value, label]) => (
+          <Picker.Item
+            key={value}
+            label={`${value} - ${label}`}
+            value={parseInt(value)}
+          />
+        ))}
+      </Picker>
+
       <Button title="Save" onPress={saveEntry} />
 
-      {/* Lista päiväkirjamerkinnöistä */}
       <FlatList
         data={entries}
         keyExtractor={(item) => item.id}
@@ -104,15 +142,24 @@ const DiaryScreen = () => {
           <View style={styles.entry}>
             <Text style={styles.date}>{item.date}</Text>
             <Text style={styles.entryText}>{item.text}</Text>
+            <Text style={styles.rating}>
+              Rating: {item.rating} - {ratingLabels[item.rating]}
+            </Text>
             <View style={styles.buttonRow}>
-              <Button title="Edit" onPress={() => startEditing(item.id, item.text)} />
-              <Button title="Delete" color="red" onPress={() => confirmDelete(item.id)} />
+              <Button
+                title="Edit"
+                onPress={() => startEditing(item.id, item.text, item.rating)}
+              />
+              <Button
+                title="Delete"
+                color="red"
+                onPress={() => confirmDelete(item.id)}
+              />
             </View>
           </View>
         )}
       />
 
-      {/* Modaali muokkausta varten */}
       <Modal
         visible={isModalVisible}
         animationType="slide"
@@ -128,6 +175,21 @@ const DiaryScreen = () => {
               onChangeText={setEditingText}
               multiline
             />
+            <Text style={styles.label}>Choose your day's rating from here:</Text>
+            <Picker
+              selectedValue={editingRating}
+              onValueChange={(itemValue) => setEditingRating(itemValue)}
+              style={styles.picker}
+            >
+              <Picker.Item label="-- Select rating --" value={null} />
+              {Object.entries(ratingLabels).map(([value, label]) => (
+                <Picker.Item
+                  key={value}
+                  label={`${value} - ${label}`}
+                  value={parseInt(value)}
+                />
+              ))}
+            </Picker>
             <View style={styles.buttonRow}>
               <Button title="Save" onPress={saveEdit} />
               <Button title="Cancel" onPress={cancelEditing} color="gray" />
@@ -141,7 +203,7 @@ const DiaryScreen = () => {
 
 export default DiaryScreen;
 
-// Tyylit käyttöliittymää varten
+// Tyylit
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -161,6 +223,13 @@ const styles = StyleSheet.create({
     height: 100,
     textAlignVertical: 'top',
   },
+  picker: {
+    marginBottom: 10,
+  },
+  label: {
+    marginBottom: 5,
+    fontWeight: '600',
+  },
   entry: {
     padding: 10,
     marginVertical: 5,
@@ -174,6 +243,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     marginBottom: 5,
+  },
+  rating: {
+    marginTop: 5,
+    fontStyle: 'italic',
+    color: '#333',
   },
   buttonRow: {
     flexDirection: 'row',
