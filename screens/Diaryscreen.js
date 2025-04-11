@@ -8,8 +8,10 @@ import {
   Alert,
   StyleSheet,
   Modal,
+  Platform
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { ref, onValue, set, remove } from 'firebase/database';
 import { database } from '../firebaseConfig';
 
@@ -26,10 +28,15 @@ const ratingLabels = {
 const DiaryScreen = () => {
   const [text, setText] = useState('');
   const [rating, setRating] = useState(null);
+  const [date, setDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
   const [entries, setEntries] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editingText, setEditingText] = useState('');
   const [editingRating, setEditingRating] = useState(null);
+  const [editingDate, setEditingDate] = useState(new Date()); // Alkuperäinen päivämäärä
+  const [showEditDatePicker, setShowEditDatePicker] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   // Haetaan merkinnät tietokannasta
@@ -52,10 +59,11 @@ const DiaryScreen = () => {
       set(newEntryRef, {
         text,
         rating,
-        date: new Date().toLocaleDateString(),
+        date: date.toLocaleDateString(),
       });
       setText('');
       setRating(null);
+      setDate(new Date());
     }
   };
 
@@ -75,10 +83,11 @@ const DiaryScreen = () => {
   };
 
   // Muokkauksen aloitus
-  const startEditing = (id, text, rating) => {
+  const startEditing = (id, text, rating, dateString) => {
     setEditingId(id);
     setEditingText(text);
     setEditingRating(rating);
+    setEditingDate(new Date()); // Asetetaan nykyinen päivämäärä automaattisesti
     setIsModalVisible(true);
   };
 
@@ -89,11 +98,12 @@ const DiaryScreen = () => {
       set(entryRef, {
         text: editingText,
         rating: editingRating,
-        date: new Date().toLocaleDateString(),
+        date: editingDate.toLocaleDateString(),
       });
       setEditingId(null);
       setEditingText('');
       setEditingRating(null);
+      setEditingDate(new Date());
       setIsModalVisible(false);
     }
   };
@@ -103,6 +113,7 @@ const DiaryScreen = () => {
     setEditingId(null);
     setEditingText('');
     setEditingRating(null);
+    setEditingDate(new Date());
     setIsModalVisible(false);
   };
 
@@ -117,7 +128,7 @@ const DiaryScreen = () => {
         multiline
       />
 
-      <Text style={styles.label}>Choose your day's rating from here:</Text>
+      <Text style={styles.label}>Choose your day's rating:</Text>
       <Picker
         selectedValue={rating}
         onValueChange={(itemValue) => setRating(itemValue)}
@@ -132,6 +143,23 @@ const DiaryScreen = () => {
           />
         ))}
       </Picker>
+
+      <Text style={styles.label}>Select date:</Text>
+      <Button
+        title={date.toLocaleDateString()}
+        onPress={() => setShowDatePicker(true)}
+      />
+      {showDatePicker && (
+        <DateTimePicker
+          value={date}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={(event, selectedDate) => {
+            setShowDatePicker(false);
+            if (selectedDate) setDate(selectedDate);
+          }}
+        />
+      )}
 
       <Button title="Save" onPress={saveEntry} />
 
@@ -148,7 +176,7 @@ const DiaryScreen = () => {
             <View style={styles.buttonRow}>
               <Button
                 title="Edit"
-                onPress={() => startEditing(item.id, item.text, item.rating)}
+                onPress={() => startEditing(item.id, item.text, item.rating, item.date)}
               />
               <Button
                 title="Delete"
@@ -175,7 +203,7 @@ const DiaryScreen = () => {
               onChangeText={setEditingText}
               multiline
             />
-            <Text style={styles.label}>Choose your day's rating from here:</Text>
+            <Text style={styles.label}>Choose rating:</Text>
             <Picker
               selectedValue={editingRating}
               onValueChange={(itemValue) => setEditingRating(itemValue)}
@@ -190,6 +218,24 @@ const DiaryScreen = () => {
                 />
               ))}
             </Picker>
+
+            <Text style={styles.label}>Edit date:</Text>
+            <Button
+              title={editingDate.toLocaleDateString()}
+              onPress={() => setShowEditDatePicker(true)}
+            />
+            {showEditDatePicker && (
+              <DateTimePicker
+                value={editingDate}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={(event, selectedDate) => {
+                  setShowEditDatePicker(false);
+                  if (selectedDate) setEditingDate(selectedDate);
+                }}
+              />
+            )}
+
             <View style={styles.buttonRow}>
               <Button title="Save" onPress={saveEdit} />
               <Button title="Cancel" onPress={cancelEditing} color="gray" />
