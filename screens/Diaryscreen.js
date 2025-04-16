@@ -14,6 +14,7 @@ import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { ref, onValue, set, remove } from 'firebase/database';
 import { database } from '../firebaseConfig';
+import { useNavigation } from '@react-navigation/native'; // Tuodaan useNavigation
 
 // Arvion selitteet
 const ratingLabels = {
@@ -26,6 +27,7 @@ const ratingLabels = {
 
 // Päiväkirjakomponentti
 const DiaryScreen = () => {
+  const navigation = useNavigation();  // Käytetään useNavigationia
   const [text, setText] = useState('');
   const [rating, setRating] = useState(null);
   const [date, setDate] = useState(new Date());
@@ -164,7 +166,7 @@ const DiaryScreen = () => {
       <Button title="Save" onPress={saveEntry} />
 
       <FlatList
-        data={entries}
+        data={entries.slice(0, 3)}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.entry}>
@@ -186,6 +188,11 @@ const DiaryScreen = () => {
             </View>
           </View>
         )}
+      />
+      <Button
+        title="Go to Diary List"
+        onPress={() => navigation.navigate('List')}  // 'List' vastaa Drawer-nimen kanssa
+        style={styles.navigateButton}
       />
 
       <Modal
@@ -248,6 +255,7 @@ const DiaryScreen = () => {
 };
 
 export default DiaryScreen;
+
 
 // Tyylit
 const styles = StyleSheet.create({
