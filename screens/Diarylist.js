@@ -6,16 +6,19 @@ import {
   Button,
   StyleSheet,
   Platform,
+  Alert,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { ref, onValue } from 'firebase/database';
+import { ref, onValue, remove } from 'firebase/database';
 import { database } from '../firebaseConfig';
+import { useNavigation } from '@react-navigation/native';
 
 const Diarylist = () => {
   const [entries, setEntries] = useState([]);
   const [filteredEntries, setFilteredEntries] = useState([]);
   const [filterDate, setFilterDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const navigation = useNavigation();
 
   useEffect(() => {
     const entriesRef = ref(database, 'entries');
@@ -37,6 +40,25 @@ const Diarylist = () => {
       setFilteredEntries(entries);
     }
   }, [filterDate, entries]);
+
+  const handleEdit = (entry) => {
+    // Oletetaan että DiaryScreen käyttää tätä samaa dataa ja vastaanottaa propsit
+    navigation.navigate('DiaryScreen', { entry });
+  };
+
+  const handleDelete = (id) => {
+    Alert.alert('Poista merkintä', 'Haluatko varmasti poistaa merkinnän?', [
+      { text: 'Peruuta', style: 'cancel' },
+      {
+        text: 'Poista',
+        style: 'destructive',
+        onPress: () => {
+          const entryRef = ref(database, `entries/${id}`);
+          remove(entryRef);
+        },
+      },
+    ]);
+  };
 
   return (
     <View style={styles.container}>
@@ -75,6 +97,14 @@ const Diarylist = () => {
             <Text style={styles.date}>{item.date}</Text>
             <Text style={styles.text}>{item.text}</Text>
             <Text style={styles.rating}>Rating: {item.rating}</Text>
+            <View style={styles.buttonRow}>
+              <Button title="Muokkaa" onPress={() => handleEdit(item)} />
+              <Button
+                title="Poista"
+                color="red"
+                onPress={() => handleDelete(item.id)}
+              />
+            </View>
           </View>
         )}
       />
@@ -112,5 +142,10 @@ const styles = StyleSheet.create({
   rating: {
     marginTop: 5,
     fontStyle: 'italic',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
   },
 });
