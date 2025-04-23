@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet, Alert } from 'react-native';
+import { View, FlatList, Alert } from 'react-native';
+import { Button, TextInput, Text, Card } from 'react-native-paper';
 import { ref, onValue, set, remove } from 'firebase/database';
 import { database } from '../firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
@@ -8,6 +9,8 @@ import RatingPicker from '../components/RatingPicker';
 import DateSelector from '../components/DateSelector';
 import EntryItem from '../components/EntryItem';
 import EditEntryModal from '../components/EditEntryModal';
+
+import styles from '../styles';  // Tuo tyylit
 
 const DiaryScreen = () => {
   const navigation = useNavigation();
@@ -91,24 +94,51 @@ const DiaryScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Diary</Text>
+      
+      {/* TextInput component from Paper */}
       <TextInput
         style={styles.input}
         placeholder="Write your thoughts..."
         value={text}
         onChangeText={setText}
         multiline
+        mode="outlined"  // Paper style
       />
+
+      {/* RatingPicker and DateSelector components */}
       <RatingPicker selectedValue={rating} onValueChange={setRating} style={styles.picker} />
       <DateSelector date={date} showPicker={showDatePicker} setShowPicker={setShowDatePicker} onChange={setDate} />
-      <Button title="Save" onPress={saveEntry} />
+
+      {/* Save Button from Paper */}
+      <Button mode="contained" onPress={saveEntry} style={styles.button}>
+        Save
+      </Button>
+
+      {/* Entries List */}
       <FlatList
         data={entries.slice(0, 3)}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <EntryItem item={item} onEdit={startEditing} onDelete={confirmDelete} />
+          <Card style={styles.entry}>
+            <Card.Content>
+              <Text>{item.date}</Text>
+              <Text>{item.text}</Text>
+              <Text>Rating: {item.rating}</Text>
+            </Card.Content>
+            <Card.Actions>
+              <Button onPress={() => startEditing(item)}>Edit</Button>
+              <Button color="red" onPress={() => confirmDelete(item.id)}>Delete</Button>
+            </Card.Actions>
+          </Card>
         )}
       />
-      <Button title="Go to Diary List" onPress={() => navigation.navigate('List')} />
+
+      {/* Go to Diary List Button */}
+      <Button mode="contained" onPress={() => navigation.navigate('List')} style={styles.button}>
+        Go to Diary List
+      </Button>
+
+      {/* EditEntryModal for editing an entry */}
       <EditEntryModal
         visible={isModalVisible}
         text={editingText}
@@ -127,27 +157,3 @@ const DiaryScreen = () => {
 };
 
 export default DiaryScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  header: {
-    fontSize: 24,
-    marginBottom: 10,
-    fontWeight: 'bold',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#aaa',
-    padding: 10,
-    marginBottom: 10,
-    height: 100,
-    textAlignVertical: 'top',
-  },
-  picker: {
-    marginBottom: 10,
-  },
-});

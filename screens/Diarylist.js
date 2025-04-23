@@ -1,18 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  Button,
-  StyleSheet,
-  Platform,
-  Alert,
-} from 'react-native';
+import { View, FlatList, Platform, Alert } from 'react-native';
+import { Button, Text, Card, Title, Paragraph } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { ref, onValue, remove, set } from 'firebase/database';
 import { database } from '../firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
 import EditEntryModal from '../components/EditEntryModal';
+import styles from '../styles'; // Oletetaan, että tyylitiedosto on tässä polussa
 
 const Diarylist = () => {
   const [entries, setEntries] = useState([]);
@@ -86,16 +80,22 @@ const Diarylist = () => {
       <Text style={styles.header}>All Diary Entries</Text>
 
       <Button
-        title={filterDate ? `Filter: ${filterDate.toLocaleDateString()}` : 'Choose Filter Date'}
-        onPress={() => setShowFilterDatePicker(true)}  // Näyttää DatePickerin suodatusta varten
-      />
+        mode="contained"
+        onPress={() => setShowFilterDatePicker(true)}
+        style={styles.button}
+      >
+        {filterDate ? `Filter: ${filterDate.toLocaleDateString()}` : 'Choose Filter Date'}
+      </Button>
 
       {filterDate && (
         <Button
-          title="Clear Filter"
+          mode="text"
           color="gray"
           onPress={() => setFilterDate(null)}
-        />
+          style={styles.button}
+        >
+          Clear Filter
+        </Button>
       )}
 
       {/* Suodatus-päivämäärän DateTimePicker */}
@@ -115,19 +115,17 @@ const Diarylist = () => {
         data={filteredEntries}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.entry}>
-            <Text style={styles.date}>{item.date}</Text>
-            <Text style={styles.text}>{item.text}</Text>
-            <Text style={styles.rating}>Rating: {item.rating}</Text>
-            <View style={styles.buttonRow}>
-              <Button title="Muokkaa" onPress={() => handleEdit(item)} />
-              <Button
-                title="Poista"
-                color="red"
-                onPress={() => handleDelete(item.id)}
-              />
-            </View>
-          </View>
+          <Card style={styles.entry}>
+            <Card.Content>
+              <Title>{item.date}</Title>
+              <Paragraph>{item.text}</Paragraph>
+              <Text style={styles.rating}>Rating: {item.rating}</Text>
+            </Card.Content>
+            <Card.Actions>
+              <Button onPress={() => handleEdit(item)}>Muokkaa</Button>
+              <Button color="red" onPress={() => handleDelete(item.id)}>Poista</Button>
+            </Card.Actions>
+          </Card>
         )}
       />
 
@@ -149,41 +147,5 @@ const Diarylist = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  header: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  entry: {
-    padding: 10,
-    marginVertical: 5,
-    backgroundColor: '#f2f2f2',
-    borderRadius: 5,
-  },
-  date: {
-    fontSize: 12,
-    color: '#666',
-  },
-  text: {
-    fontSize: 16,
-    marginTop: 5,
-  },
-  rating: {
-    marginTop: 5,
-    fontStyle: 'italic',
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-});
 
 export default Diarylist;

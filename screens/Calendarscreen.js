@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, FlatList } from 'react-native';
+import { View, FlatList, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Calendar } from 'react-native-calendars';
 import { ref, onValue } from 'firebase/database';
 import { database } from '../firebaseConfig';
+import { Text, Button, Card } from 'react-native-paper';  // Tuotu Paper-komponentteja
+import styles from '../styles';  // Tuodaan ulkopuoliset tyylit
 
 const CalendarScreen = () => {
   const navigation = useNavigation();
@@ -108,10 +110,12 @@ const CalendarScreen = () => {
               data={filteredEntries}
               keyExtractor={(item, index) => index.toString()}
               renderItem={({ item }) => (
-                <View style={styles.entryBox}>
-                  <Text>Rating: {item.rating}</Text>
-                  <Text>{item.text}</Text>
-                </View>
+                <Card style={styles.entryBox}>
+                  <Card.Content>
+                    <Text>Rating: {item.rating}</Text>
+                    <Text>{item.text}</Text>
+                  </Card.Content>
+                </Card>
               )}
             />
           ) : (
@@ -120,46 +124,12 @@ const CalendarScreen = () => {
         </View>
       )}
 
-      <Button title="Go Back" onPress={() => navigation.goBack()} />
+      {/* Button component from Paper */}
+      <Button mode="contained" onPress={() => navigation.goBack()} style={styles.button}>
+        Go Back
+      </Button>
     </View>
   );
 };
 
 export default CalendarScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 10,
-    paddingTop: 40,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  calendar: {
-    borderWidth: 1,
-    borderRadius: 10,
-    borderColor: '#ccc',
-    height: 400,
-  },
-  entrySection: {
-    flex: 1,
-    marginTop: 20,
-  },
-  entryTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  entryBox: {
-    backgroundColor: '#f2f2f2',
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-});
