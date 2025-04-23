@@ -9,15 +9,21 @@ import {
   Alert,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { ref, onValue, remove } from 'firebase/database';
+import { ref, onValue, remove, set } from 'firebase/database';
 import { database } from '../firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
+import EditEntryModal from '../components/EditEntryModal';
 
 const Diarylist = () => {
   const [entries, setEntries] = useState([]);
   const [filteredEntries, setFilteredEntries] = useState([]);
-  const [filterDate, setFilterDate] = useState(null);
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [filterDate, setFilterDate] = useState(null);  // Suodatuspäivämäärä
+  const [editingEntryDate, setEditingEntryDate] = useState(null);  // Muokattavan merkinnän päivämäärä
+  const [showFilterDatePicker, setShowFilterDatePicker] = useState(false);  // Suodatus-päivämäärän picker
+  const [showEditDatePicker, setShowEditDatePicker] = useState(false);  // Muokkaus-päivämäärän picker
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editingEntry, setEditingEntry] = useState(null);
+
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -42,8 +48,23 @@ const Diarylist = () => {
   }, [filterDate, entries]);
 
   const handleEdit = (entry) => {
-    // Oletetaan että DiaryScreen käyttää tätä samaa dataa ja vastaanottaa propsit
-    navigation.navigate('DiaryScreen', { entry });
+    setEditingEntry(entry);
+    setEditingEntryDate(new Date(entry.date));  // Asetetaan muokattavan merkinnän päivämäärä
+    setIsModalVisible(true);
+  };
+
+  const handleSave = () => {
+    if (editingEntry && editingEntryDate) {
+      const updatedEntry = {
+        ...editingEntry,
+        date: editingEntryDate.toLocaleDateString(),  // Päivitetään päivämäärä
+      };
+
+      set(ref(database, `entries/${editingEntry.id}`), updatedEntry);
+      setIsModalVisible(false);
+      setEditingEntry(null);
+      setEditingEntryDate(null); // Tyhjennetään muokattavan merkinnän päivämäärä
+    }
   };
 
   const handleDelete = (id) => {
@@ -66,7 +87,7 @@ const Diarylist = () => {
 
       <Button
         title={filterDate ? `Filter: ${filterDate.toLocaleDateString()}` : 'Choose Filter Date'}
-        onPress={() => setShowDatePicker(true)}
+        onPress={() => setShowFilterDatePicker(true)}  // Näyttää DatePickerin suodatusta varten
       />
 
       {filterDate && (
@@ -77,14 +98,15 @@ const Diarylist = () => {
         />
       )}
 
-      {showDatePicker && (
+      {/* Suodatus-päivämäärän DateTimePicker */}
+      {showFilterDatePicker && !editingEntryDate && (  // Vain jos ei ole muokkaustilassa
         <DateTimePicker
           value={filterDate || new Date()}
           mode="date"
           display={Platform.OS === 'ios' ? 'spinner' : 'default'}
           onChange={(event, selectedDate) => {
-            setShowDatePicker(false);
-            if (selectedDate) setFilterDate(selectedDate);
+            setShowFilterDatePicker(false);
+            if (selectedDate) setFilterDate(selectedDate);  // Suodattaminen
           }}
         />
       )}
@@ -108,11 +130,25 @@ const Diarylist = () => {
           </View>
         )}
       />
+
+      {isModalVisible && editingEntry && (
+        <EditEntryModal
+          visible={isModalVisible}
+          text={editingEntry.text}
+          setText={(text) => setEditingEntry((prev) => ({ ...prev, text }))}
+          rating={editingEntry.rating}
+          setRating={(rating) => setEditingEntry((prev) => ({ ...prev, rating }))}
+          date={editingEntryDate || new Date()}  // Käytetään erillistä päivämäärää muokattavalle merkinnälle
+          setDate={(date) => setEditingEntryDate(date)} // Päivitetään vain editointiin käytettävä päivämäärä
+          showPicker={showEditDatePicker}  // Välitetään showPicker EditEntryModalille
+          setShowPicker={setShowEditDatePicker}  // Välitetään setShowPicker
+          onSave={handleSave}  // Tallennusfunktio
+          onCancel={() => setIsModalVisible(false)}
+        />
+      )}
     </View>
   );
 };
-
-export default Diarylist;
 
 const styles = StyleSheet.create({
   container: {
@@ -149,3 +185,5 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
 });
+
+export default Diarylist;
