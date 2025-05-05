@@ -1,7 +1,6 @@
-// DiaryScreen.js
 import React, { useState, useEffect } from 'react';
-import { View, FlatList, Alert } from 'react-native';
-import { Button, TextInput, Text, Card } from 'react-native-paper';
+import { View, Alert } from 'react-native';
+import { Button, TextInput, Text } from 'react-native-paper';
 import { ref, onValue, set, remove } from 'firebase/database';
 import { database } from '../firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
@@ -11,7 +10,6 @@ import DateSelector from '../components/DateSelector';
 import EditEntryModal from '../components/EditEntryModal';
 import DiaryEntryList from '../components/DiaryEntryList';
 
-
 import styles from '../styles';
 
 const DiaryScreen = () => {
@@ -19,7 +17,7 @@ const DiaryScreen = () => {
   const [text, setText] = useState('');
   const [rating, setRating] = useState(null);
   const [date, setDate] = useState(new Date());
-  const [dateSelected, setDateSelected] = useState(false); // UUSI TILA
+  const [dateSelected, setDateSelected] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [entries, setEntries] = useState([]);
 
@@ -37,9 +35,12 @@ const DiaryScreen = () => {
       const entryList = data
         ? Object.entries(data).map(([id, value]) => ({ id, ...value }))
         : [];
+      
+      // Lajitellaan merkinnät ja otetaan vain viimeisin
       const sortedEntries = entryList.sort((a, b) => new Date(b.date) - new Date(a.date));
-      setEntries(sortedEntries.slice(0, 3));
+      setEntries(sortedEntries.slice(0, 1)); // Tämä ottaa vain viimeisimmän merkinnän
     });
+
     return () => unsubscribe();
   }, []);
 
@@ -54,7 +55,7 @@ const DiaryScreen = () => {
       setText('');
       setRating(null);
       setDate(new Date());
-      setDateSelected(false); // PALAUTA TILA OLETUKSEEN
+      setDateSelected(false); 
     }
   };
 
@@ -98,7 +99,12 @@ const DiaryScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Diary</Text>
+      <Text style={styles.title}>Diary</Text>
+
+      {/* Infoteksti lisäämisen alkuun */}
+      <Text style={styles.infoText}>
+      Here you can add new diary entries, edit or delete existing entries.
+      </Text>
 
       <TextInput
         style={styles.input}
@@ -110,7 +116,7 @@ const DiaryScreen = () => {
       />
 
       <RatingPicker selectedValue={rating} onValueChange={setRating} style={styles.picker} />
-      
+
       <DateSelector
         date={date}
         dateSelected={dateSelected}
@@ -127,14 +133,7 @@ const DiaryScreen = () => {
         Save the diary entry
       </Button>
 
-      <DiaryEntryList
-  entries={entries}
-  onEdit={startEditing}
-  onDelete={confirmDelete}
-/>
-
-
-      <Button mode="contained" onPress={() => navigation.navigate('List')} style={styles.button}>
+      <Button mode="contained" onPress={() => navigation.navigate('List')} style={[styles.button, { marginTop: 50 }]}>
         Go to Diary List
       </Button>
 

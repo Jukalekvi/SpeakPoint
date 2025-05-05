@@ -8,6 +8,7 @@ const DiaryEntryList = ({ entries, onEdit, onDelete }) => {
   return (
     <FlatList
       data={entries}
+      style={{marginBottom: 30}}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
         <Card style={styles.entryCard}>

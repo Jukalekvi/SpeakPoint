@@ -100,6 +100,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,  // Voit säätää välejä
     alignSelf: 'stretch',  // Voit halutessasi tehdä painikkeesta laajentuvan
   },
+  input:{
+    backgroundColor: '#E0F2F1',
+    alignItems: 'center',
+    height:'30%'
+  },
+  picker:{
+    textAlign:'center',
+    borderWidth:1,
+  },
 });
 
 export default styles;
