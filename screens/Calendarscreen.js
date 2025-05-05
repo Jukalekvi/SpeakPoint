@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
+import { View, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Calendar } from 'react-native-calendars';
 import { ref, onValue } from 'firebase/database';
 import { database } from '../firebaseConfig';
-import { Text, Button, Card } from 'react-native-paper';  // Tuotu Paper-komponentteja
-import styles from '../styles';  // Tuodaan ulkopuoliset tyylit
+import { Text, Button, Card } from 'react-native-paper';
+import styles from '../styles';
 
 const CalendarScreen = () => {
   const navigation = useNavigation();
   const [entries, setEntries] = useState([]);
   const [markedDates, setMarkedDates] = useState({});
   const [selectedDate, setSelectedDate] = useState('');
-  const [filteredEntries, setFilteredEntries] = useState([]);
+  const [latestEntry, setLatestEntry] = useState(null);
 
   useEffect(() => {
     const entriesRef = ref(database, 'entries');
-
     onValue(entriesRef, (snapshot) => {
       const data = snapshot.val();
       if (!data) return;
@@ -36,11 +35,11 @@ const CalendarScreen = () => {
 
         let color;
         switch (entry.rating) {
-          case 1: color = '#ff4d4d'; break; // punainen
-          case 2: color = '#ffa64d'; break; // oranssi
-          case 3: color = '#ffff66'; break; // keltainen
-          case 4: color = '#85e085'; break; // vihreä
-          case 5: color = '#4da6ff'; break; // sininen
+          case 1: color = '#ff4d4d'; break;
+          case 2: color = '#ffa64d'; break;
+          case 3: color = '#ffff66'; break;
+          case 4: color = '#85e085'; break;
+          case 5: color = '#4da6ff'; break;
           default: color = '#d3d3d3';
         }
 
@@ -65,14 +64,22 @@ const CalendarScreen = () => {
   const onDayPress = (day) => {
     setSelectedDate(day.dateString);
 
+    // Muotoillaan valittu päivä
     const [year, month, dayNum] = day.dateString.split('-');
     const formatted = `${parseInt(dayNum)}.${parseInt(month)}.${year}`;
 
-    const filtered = entries.filter(entry => entry.date === formatted);
-    setFilteredEntries(filtered);
+    // Suodatetaan merkinnät valitulle päivälle ja otetaan vain viimeisin
+    const filteredEntries = entries
+      .filter(entry => entry.date === formatted)
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Oletetaan, että merkinnöissä on aikaleima
+
+    if (filteredEntries.length > 0) {
+      setLatestEntry(filteredEntries[0]); // Asetetaan viimeisin merkintä
+    } else {
+      setLatestEntry(null); // Ei merkintöjä valitulle päivälle
+    }
   };
 
-  // Yhdistetään merkityt ja valittu päivä
   const combinedMarkedDates = {
     ...markedDates,
     ...(selectedDate && {
@@ -99,32 +106,26 @@ const CalendarScreen = () => {
           textDayFontWeight: '600',
           textMonthFontWeight: 'bold',
           arrowColor: 'black',
+          monthTextColor: '#1E293B',
         }}
       />
 
       {selectedDate && (
         <View style={styles.entrySection}>
-          <Text style={styles.entryTitle}>Entries on {selectedDate}:</Text>
-          {filteredEntries.length > 0 ? (
-            <FlatList
-              data={filteredEntries}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item }) => (
-                <Card style={styles.entryBox}>
-                  <Card.Content>
-                    <Text>Rating: {item.rating}</Text>
-                    <Text>{item.text}</Text>
-                  </Card.Content>
-                </Card>
-              )}
-            />
+          <Text style={styles.entryTitle}>Latest entry on {selectedDate}:</Text>
+          {latestEntry ? (
+            <Card style={styles.entryBox}>
+              <Card.Content>
+                <Text style={styles.entryText}>Rating: {latestEntry.rating}</Text>
+                <Text>{latestEntry.text}</Text>
+              </Card.Content>
+            </Card>
           ) : (
             <Text>No entries</Text>
           )}
         </View>
       )}
 
-      {/* Button component from Paper */}
       <Button mode="contained" onPress={() => navigation.goBack()} style={styles.button}>
         Go Back
       </Button>

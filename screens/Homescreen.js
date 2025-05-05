@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { Button, Text } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 
-import styles from '../styles';  // Tuo yhteinen tyylitiedosto
+import styles from '../styles';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -11,15 +11,15 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to SpeakPoint 👋</Text>
-      <Text style={styles.description}>
+      <Text style={styles.subTitle}>
         Save your daily thoughts through speech or text. Let your mind speak freely.
       </Text>
 
-      {/* Käytetään Paperin Button-komponenttia */}
       <Button
         mode="contained"
         onPress={() => navigation.navigate('Calendar')}
         style={styles.button}
+        labelStyle={styles.buttonLabel}
       >
         📅 Go to Calendar
       </Button>
@@ -28,6 +28,7 @@ const HomeScreen = () => {
         mode="contained"
         onPress={() => navigation.navigate('Diary')}
         style={styles.button}
+        labelStyle={styles.buttonLabel}
       >
         📖 Go to Diary
       </Button>
@@ -36,8 +37,9 @@ const HomeScreen = () => {
         mode="contained"
         onPress={() => navigation.navigate('List')}
         style={styles.button}
+        labelStyle={styles.buttonLabel}
       >
-        📖 Go to the list of entries
+        🗒️ Entry List
       </Button>
     </View>
   );

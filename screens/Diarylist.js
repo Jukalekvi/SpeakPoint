@@ -6,15 +6,15 @@ import { ref, onValue, remove, set } from 'firebase/database';
 import { database } from '../firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
 import EditEntryModal from '../components/EditEntryModal';
-import styles from '../styles'; // Oletetaan, että tyylitiedosto on tässä polussa
+import styles from '../styles';
 
 const Diarylist = () => {
   const [entries, setEntries] = useState([]);
   const [filteredEntries, setFilteredEntries] = useState([]);
-  const [filterDate, setFilterDate] = useState(null);  // Suodatuspäivämäärä
-  const [editingEntryDate, setEditingEntryDate] = useState(null);  // Muokattavan merkinnän päivämäärä
-  const [showFilterDatePicker, setShowFilterDatePicker] = useState(false);  // Suodatus-päivämäärän picker
-  const [showEditDatePicker, setShowEditDatePicker] = useState(false);  // Muokkaus-päivämäärän picker
+  const [filterDate, setFilterDate] = useState(null);
+  const [editingEntryDate, setEditingEntryDate] = useState(null);
+  const [showFilterDatePicker, setShowFilterDatePicker] = useState(false);
+  const [showEditDatePicker, setShowEditDatePicker] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
 
@@ -43,7 +43,7 @@ const Diarylist = () => {
 
   const handleEdit = (entry) => {
     setEditingEntry(entry);
-    setEditingEntryDate(new Date(entry.date));  // Asetetaan muokattavan merkinnän päivämäärä
+    setEditingEntryDate(new Date(entry.date));
     setIsModalVisible(true);
   };
 
@@ -51,13 +51,13 @@ const Diarylist = () => {
     if (editingEntry && editingEntryDate) {
       const updatedEntry = {
         ...editingEntry,
-        date: editingEntryDate.toLocaleDateString(),  // Päivitetään päivämäärä
+        date: editingEntryDate.toLocaleDateString(),
       };
 
       set(ref(database, `entries/${editingEntry.id}`), updatedEntry);
       setIsModalVisible(false);
       setEditingEntry(null);
-      setEditingEntryDate(null); // Tyhjennetään muokattavan merkinnän päivämäärä
+      setEditingEntryDate(null);
     }
   };
 
@@ -77,12 +77,13 @@ const Diarylist = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>All Diary Entries</Text>
+      <Text style={styles.title}>All Diary Entries</Text>
+      <Text style={styles.subTitle}>Browse through your diary entries, and feel free to edit or delete them as you wish!</Text>
 
       <Button
         mode="contained"
         onPress={() => setShowFilterDatePicker(true)}
-        style={styles.button}
+        style={styles.filterButton}
       >
         {filterDate ? `Filter: ${filterDate.toLocaleDateString()}` : 'Choose Filter Date'}
       </Button>
@@ -92,21 +93,23 @@ const Diarylist = () => {
           mode="text"
           color="gray"
           onPress={() => setFilterDate(null)}
-          style={styles.button}
+          style={styles.clearButton}
         >
           Clear Filter
         </Button>
       )}
 
       {/* Suodatus-päivämäärän DateTimePicker */}
-      {showFilterDatePicker && !editingEntryDate && (  // Vain jos ei ole muokkaustilassa
+      {showFilterDatePicker && (
         <DateTimePicker
           value={filterDate || new Date()}
           mode="date"
           display={Platform.OS === 'ios' ? 'spinner' : 'default'}
           onChange={(event, selectedDate) => {
-            setShowFilterDatePicker(false);
-            if (selectedDate) setFilterDate(selectedDate);  // Suodattaminen
+            if (selectedDate) {
+              setFilterDate(selectedDate);  // Päivämäärän valinta
+            }
+            setShowFilterDatePicker(false);  // Piilotetaan valitsin
           }}
         />
       )}
@@ -115,15 +118,15 @@ const Diarylist = () => {
         data={filteredEntries}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <Card style={styles.entry}>
+          <Card style={styles.entryCard}>
             <Card.Content>
-              <Title>{item.date}</Title>
-              <Paragraph>{item.text}</Paragraph>
-              <Text style={styles.rating}>Rating: {item.rating}</Text>
+              <Title style={styles.entryTitle}>{item.date}</Title>
+              <Paragraph style={styles.entryText}>{item.text}</Paragraph>
+              <Text style={styles.entryRating}>Rating: {item.rating}</Text>
             </Card.Content>
-            <Card.Actions>
-              <Button onPress={() => handleEdit(item)}>Muokkaa</Button>
-              <Button color="red" onPress={() => handleDelete(item.id)}>Poista</Button>
+            <Card.Actions style={styles.entryActions}>
+              <Button onPress={() => handleEdit(item)} style={styles.editButton} labelStyle={styles.editButtonLabel}>Edit</Button>
+              <Button color="red" onPress={() => handleDelete(item.id)} style={styles.deleteButton}>Delete</Button>
             </Card.Actions>
           </Card>
         )}
@@ -136,11 +139,11 @@ const Diarylist = () => {
           setText={(text) => setEditingEntry((prev) => ({ ...prev, text }))}
           rating={editingEntry.rating}
           setRating={(rating) => setEditingEntry((prev) => ({ ...prev, rating }))}
-          date={editingEntryDate || new Date()}  // Käytetään erillistä päivämäärää muokattavalle merkinnälle
-          setDate={(date) => setEditingEntryDate(date)} // Päivitetään vain editointiin käytettävä päivämäärä
-          showPicker={showEditDatePicker}  // Välitetään showPicker EditEntryModalille
-          setShowPicker={setShowEditDatePicker}  // Välitetään setShowPicker
-          onSave={handleSave}  // Tallennusfunktio
+          date={editingEntryDate || new Date()}
+          setDate={(date) => setEditingEntryDate(date)}
+          showPicker={showEditDatePicker}
+          setShowPicker={setShowEditDatePicker}
+          onSave={handleSave}
           onCancel={() => setIsModalVisible(false)}
         />
       )}

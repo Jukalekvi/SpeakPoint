@@ -3,31 +3,78 @@ import { StyleSheet } from 'react-native';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
-    paddingTop: 40,
-    backgroundColor: '#fff',
+    padding: 24,
+    paddingTop: 20,
+    backgroundColor: '#E0F2F1',
   },
-  header: {
-    fontSize: 24,
+  title: {
+    fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
+    color: '#1E293B',
   },
-  input: {
-    height: 120, // Kenttä on isompi
+  calendar: {
+    marginBottom: 20,
+  },
+  entrySection: {
+    marginTop: 20,
+  },
+  entryTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1E293B',
     marginBottom: 10,
-    borderWidth: 1,
+  },
+  entryBox: {
+    marginVertical: 8,
     borderRadius: 8,
-    padding: 10,
-    backgroundColor: '#f5f5f5',
-    textAlignVertical: 'top',  // Teksti alkaa aina ylhäältä
+    backgroundColor: '#fff',
+    elevation: 3,
   },
-  picker: {
-    marginBottom: 10,
+  entryText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  subTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'center',
+    color: '#4B5563',  // Tummanharmaa väri
+  },
+  filterButton: {
+    marginTop: 20,
+    marginBottom: 20,
+    alignSelf: 'center',
+    borderRadius: 12,
+    paddingVertical: 6,
+    width: '80%',
+    backgroundColor: '#008080',
   },
   button: {
-    marginTop: 10,
+    marginTop: 20,
     alignSelf: 'center',
+    borderRadius: 12,
+    paddingVertical: 6,
+    width: '80%',
+    backgroundColor: '#008080',
+  },
+  editButton: {
+    backgroundColor: '#3182CE',
+    borderRadius: 10,
+    paddingVertical: 6,
+    marginRight: 12,
+    width: '40%',
+    color: '#FFFFFF',
+  },
+  editButtonLabel: {
+    color: '#FFFFFF',  // Tekstin väri valkoinen
+  },
+  deleteButton: {
+    backgroundColor: '#D32F2F',  // Punainen väri varoitukselle
+    borderRadius: 10,
+    paddingVertical: 6,
+    width: '40%',
   },
 });
 
