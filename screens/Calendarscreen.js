@@ -35,13 +35,25 @@ const CalendarScreen = () => {
 
         let color;
         switch (entry.rating) {
-          case 1: color = '#ff4d4d'; break;
-          case 2: color = '#ffa64d'; break;
-          case 3: color = '#ffff66'; break;
-          case 4: color = '#85e085'; break;
-          case 5: color = '#4da6ff'; break;
-          default: color = '#d3d3d3';
+          case 1:
+            color = '#ff0000'; // punainen
+            break;
+          case 2:
+            color = '#ff7f00'; // oranssi
+            break;
+          case 3:
+            color = '#ffff00'; // keltainen
+            break;
+          case 4:
+            color = '#ccff66'; // kelta-vihreä sekoitus
+            break;
+          case 5:
+            color = '#00cc44'; // vihreä
+            break;
+          default:
+            color = '#d3d3d3'; // oletus
         }
+        
 
         newMarkedDates[formatted] = {
           customStyles: {
