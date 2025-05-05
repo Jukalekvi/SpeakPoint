@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, FlatList, Platform, Alert } from 'react-native';
 import { Button, Text, Card, Title, Paragraph } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -90,29 +90,35 @@ const Diarylist = () => {
 
       {filterDate && (
         <Button
-          mode="text"
-          color="gray"
+          mode="contained"
           onPress={() => setFilterDate(null)}
-          style={styles.clearButton}
+          style={styles.button}
         >
           Clear Filter
         </Button>
       )}
 
-      {/* Suodatus-päivämäärän DateTimePicker */}
+      {/* Filter Date Picker */}
       {showFilterDatePicker && (
         <DateTimePicker
-          value={filterDate || new Date()}
-          mode="date"
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          onChange={(event, selectedDate) => {
-            if (selectedDate) {
-              setFilterDate(selectedDate);  // Päivämäärän valinta
-            }
-            setShowFilterDatePicker(false);  // Piilotetaan valitsin
-          }}
-        />
-      )}
+        value={filterDate || new Date()}
+        mode="date"
+        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+        onChange={(event, selectedDate) => {
+          // If the event type is 'dismissed', it means the user canceled the picker, so we don't change the date
+          if (event.type === 'dismissed') {
+            setShowFilterDatePicker(false);  // Close the picker without changing the date
+            return;
+          }
+
+          // If the user selected a date, update the state
+          if (selectedDate) {
+            setFilterDate(selectedDate);
+          }
+          setShowFilterDatePicker(false);  // Close the picker after selection or cancellation
+        }}
+      />
+    )}
 
       <FlatList
         data={filteredEntries}
@@ -126,7 +132,7 @@ const Diarylist = () => {
             </Card.Content>
             <Card.Actions style={styles.entryActions}>
               <Button onPress={() => handleEdit(item)} style={styles.editButton} labelStyle={styles.editButtonLabel}>Edit</Button>
-              <Button color="red" onPress={() => handleDelete(item.id)} style={styles.deleteButton}>Delete</Button>
+              <Button onPress={() => handleDelete(item.id)} style={styles.deleteButton}>Delete</Button>
             </Card.Actions>
           </Card>
         )}

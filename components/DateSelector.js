@@ -1,25 +1,48 @@
 import React from 'react';
-import { Button, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { Button } from 'react-native-paper';
+import styles from '../styles';
 
-const DateSelector = ({ date, showPicker, setShowPicker, onChange }) => {
-  // Varmistetaan, että date on Date-objekti
+const DateSelector = ({
+  date,
+  dateSelected,
+  setDateSelected,
+  showPicker,
+  setShowPicker,
+  onChange,
+}) => {
   const validDate = date instanceof Date && !isNaN(date) ? date : new Date();
 
   return (
     <>
       <Button
-        title={validDate.toLocaleDateString()} // Näytetään oikea päivämäärä
-        onPress={() => setShowPicker(true)}  // Avaa päivämäärävalitsin
-      />
+        mode="contained"
+        onPress={() => setShowPicker(true)}
+        style={styles.button}
+      >
+        {dateSelected ? validDate.toLocaleDateString() : 'Choose date for your entry'}
+      </Button>
+
       {showPicker && (
         <DateTimePicker
-          value={validDate}  // Käytetään validia päivämäärää
+          value={validDate}
           mode="date"
           display={Platform.OS === 'ios' ? 'spinner' : 'default'}
           onChange={(event, selectedDate) => {
             setShowPicker(false);
-            if (selectedDate) onChange(selectedDate);  // Päivitetään valittu päivämäärä
+
+            if (Platform.OS === 'android' && event.type === 'dismissed') {
+              setDateSelected(false);
+              return;
+            }
+
+            if (selectedDate) {
+              onChange(selectedDate);
+              setDateSelected(true);
+            } else {
+              setDateSelected(false);
+            }
           }}
         />
       )}

@@ -17,24 +17,36 @@ const styles = StyleSheet.create({
   calendar: {
     marginBottom: 20,
   },
-  entrySection: {
-    marginTop: 20,
+  entryBox: {
+    marginVertical: 8,
+    borderRadius: 12,  // Pyöreät kulmat
+    backgroundColor: '#FFFFFF',  // Valkoinen tausta
+    elevation: 0,  // Poistaa varjon
+    borderWidth: 0,  // Poistaa mahdolliset reunat
+    borderColor: 'transparent',  // Poistaa mahdolliset näkyvät reunat
   },
   entryTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
     color: '#1E293B',
-    marginBottom: 10,
-  },
-  entryBox: {
-    marginVertical: 8,
-    borderRadius: 8,
-    backgroundColor: '#fff',
-    elevation: 3,
+    fontWeight: '700',
   },
   entryText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '500',
+  },
+  entryRating: {
+    fontSize: 15,
+    fontWeight: '500',
+  },
+  entryCard: {
+    marginBottom: 12,  // Lisää tilaa korttien väliin
+    elevation: 3,  // Lisää varjo kortille, jos haluat
+    backgroundColor: '#ffffff',  // Varmista, että kortin taustaväri on valkoinen
+  },
+  entryActions: {
+    flexDirection: 'row',  // Asetetaan nappulat vaakasuunnassa
+    justifyContent: 'space-between',  // Jaa tilaa tasaisesti nappuloiden välillä
+    width: '100%',  // Varmistetaan, että nappulat vievät koko tilan
   },
   subTitle: {
     fontSize: 16,
@@ -43,8 +55,8 @@ const styles = StyleSheet.create({
     color: '#4B5563',  // Tummanharmaa väri
   },
   filterButton: {
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: 10,
+    marginBottom: 10,
     alignSelf: 'center',
     borderRadius: 12,
     paddingVertical: 6,
@@ -52,7 +64,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#008080',
   },
   button: {
-    marginTop: 20,
+    marginTop: 10,
+    marginBottom: 10,
     alignSelf: 'center',
     borderRadius: 12,
     paddingVertical: 6,
@@ -63,7 +76,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#3182CE',
     borderRadius: 10,
     paddingVertical: 6,
-    marginRight: 12,
+    marginRight: '10%',
     width: '40%',
     color: '#FFFFFF',
   },
@@ -75,6 +88,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 6,
     width: '40%',
+    marginLeft: '10%',
+  },
+  filterDateButton: {
+    marginBottom: 10,  // Voit säätää välejä
+    alignSelf: 'stretch',  // Voit halutessasi tehdä painikkeesta laajentuvan
   },
 });
 

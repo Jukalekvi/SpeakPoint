@@ -1,3 +1,4 @@
+// DiaryScreen.js
 import React, { useState, useEffect } from 'react';
 import { View, FlatList, Alert } from 'react-native';
 import { Button, TextInput, Text, Card } from 'react-native-paper';
@@ -7,16 +8,16 @@ import { useNavigation } from '@react-navigation/native';
 
 import RatingPicker from '../components/RatingPicker';
 import DateSelector from '../components/DateSelector';
-import EntryItem from '../components/EntryItem';
 import EditEntryModal from '../components/EditEntryModal';
 
-import styles from '../styles';  // Tuo tyylit
+import styles from '../styles';
 
 const DiaryScreen = () => {
   const navigation = useNavigation();
   const [text, setText] = useState('');
   const [rating, setRating] = useState(null);
   const [date, setDate] = useState(new Date());
+  const [dateSelected, setDateSelected] = useState(false); // UUSI TILA
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [entries, setEntries] = useState([]);
 
@@ -34,7 +35,8 @@ const DiaryScreen = () => {
       const entryList = data
         ? Object.entries(data).map(([id, value]) => ({ id, ...value }))
         : [];
-      setEntries(entryList.reverse());
+      const sortedEntries = entryList.sort((a, b) => new Date(b.date) - new Date(a.date));
+      setEntries(sortedEntries.slice(0, 3));
     });
     return () => unsubscribe();
   }, []);
@@ -50,6 +52,7 @@ const DiaryScreen = () => {
       setText('');
       setRating(null);
       setDate(new Date());
+      setDateSelected(false); // PALAUTA TILA OLETUKSEEN
     }
   };
 
@@ -94,51 +97,56 @@ const DiaryScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Diary</Text>
-      
-      {/* TextInput component from Paper */}
+
       <TextInput
         style={styles.input}
         placeholder="Write your thoughts..."
         value={text}
         onChangeText={setText}
         multiline
-        mode="outlined"  // Paper style
+        mode="outlined"
       />
 
-      {/* RatingPicker and DateSelector components */}
       <RatingPicker selectedValue={rating} onValueChange={setRating} style={styles.picker} />
-      <DateSelector date={date} showPicker={showDatePicker} setShowPicker={setShowDatePicker} onChange={setDate} />
+      
+      <DateSelector
+        date={date}
+        dateSelected={dateSelected}
+        setDateSelected={setDateSelected}
+        showPicker={showDatePicker}
+        setShowPicker={setShowDatePicker}
+        onChange={(selectedDate) => {
+          setDate(selectedDate);
+          setDateSelected(true);
+        }}
+      />
 
-      {/* Save Button from Paper */}
       <Button mode="contained" onPress={saveEntry} style={styles.button}>
-        Save
+        Save the diary entry
       </Button>
 
-      {/* Entries List */}
       <FlatList
-        data={entries.slice(0, 3)}
+        data={entries}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <Card style={styles.entry}>
+          <Card style={styles.entryCard}>
             <Card.Content>
-              <Text>{item.date}</Text>
-              <Text>{item.text}</Text>
-              <Text>Rating: {item.rating}</Text>
+              <Text style={styles.entryDate}>{item.date}</Text>
+              <Text style={styles.entryText}>{item.text}</Text>
+              <Text style={styles.entryRating}>Rating: {item.rating}</Text>
             </Card.Content>
-            <Card.Actions>
-              <Button onPress={() => startEditing(item)}>Edit</Button>
-              <Button color="red" onPress={() => confirmDelete(item.id)}>Delete</Button>
+            <Card.Actions style={styles.entryActions}>
+              <Button onPress={() => startEditing(item)} style={styles.editButton}>Edit</Button>
+              <Button color="red" onPress={() => confirmDelete(item.id)} style={styles.deleteButton}>Delete</Button>
             </Card.Actions>
           </Card>
         )}
       />
 
-      {/* Go to Diary List Button */}
       <Button mode="contained" onPress={() => navigation.navigate('List')} style={styles.button}>
         Go to Diary List
       </Button>
 
-      {/* EditEntryModal for editing an entry */}
       <EditEntryModal
         visible={isModalVisible}
         text={editingText}
