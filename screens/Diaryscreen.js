@@ -9,6 +9,8 @@ import { useNavigation } from '@react-navigation/native';
 import RatingPicker from '../components/RatingPicker';
 import DateSelector from '../components/DateSelector';
 import EditEntryModal from '../components/EditEntryModal';
+import DiaryEntryList from '../components/DiaryEntryList';
+
 
 import styles from '../styles';
 
@@ -125,23 +127,12 @@ const DiaryScreen = () => {
         Save the diary entry
       </Button>
 
-      <FlatList
-        data={entries}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <Card style={styles.entryCard}>
-            <Card.Content>
-              <Text style={styles.entryDate}>{item.date}</Text>
-              <Text style={styles.entryText}>{item.text}</Text>
-              <Text style={styles.entryRating}>Rating: {item.rating}</Text>
-            </Card.Content>
-            <Card.Actions style={styles.entryActions}>
-              <Button onPress={() => startEditing(item)} style={styles.editButton}>Edit</Button>
-              <Button color="red" onPress={() => confirmDelete(item.id)} style={styles.deleteButton}>Delete</Button>
-            </Card.Actions>
-          </Card>
-        )}
-      />
+      <DiaryEntryList
+  entries={entries}
+  onEdit={startEditing}
+  onDelete={confirmDelete}
+/>
+
 
       <Button mode="contained" onPress={() => navigation.navigate('List')} style={styles.button}>
         Go to Diary List

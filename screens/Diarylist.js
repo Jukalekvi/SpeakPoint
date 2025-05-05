@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, FlatList, Platform, Alert } from 'react-native';
-import { Button, Text, Card, Title, Paragraph } from 'react-native-paper';
+import { View, Platform, Alert } from 'react-native';
+import { Button, Text } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { ref, onValue, remove, set } from 'firebase/database';
 import { database } from '../firebaseConfig';
-import { useNavigation } from '@react-navigation/native';
+
 import EditEntryModal from '../components/EditEntryModal';
+import DiaryEntryList from '../components/DiaryEntryList';
+
 import styles from '../styles';
 
 const Diarylist = () => {
@@ -18,8 +20,6 @@ const Diarylist = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
 
-  const navigation = useNavigation();
-
   useEffect(() => {
     const entriesRef = ref(database, 'entries');
     const unsubscribe = onValue(entriesRef, (snapshot) => {
@@ -27,7 +27,15 @@ const Diarylist = () => {
       const entryList = data
         ? Object.entries(data).map(([id, value]) => ({ id, ...value }))
         : [];
-      setEntries(entryList.reverse());
+
+      const parseDate = (dateStr) => {
+        const [day, month, year] = dateStr.split('.');
+        if (!day || !month || !year) return new Date(0);
+        return new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
+      };
+
+      const sortedEntries = entryList.sort((a, b) => parseDate(b.date) - parseDate(a.date));
+      setEntries(sortedEntries);
     });
     return () => unsubscribe();
   }, []);
@@ -78,7 +86,9 @@ const Diarylist = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>All Diary Entries</Text>
-      <Text style={styles.subTitle}>Browse through your diary entries, and feel free to edit or delete them as you wish!</Text>
+      <Text style={styles.subTitle}>
+        Browse through your diary entries, and feel free to edit or delete them as you wish!
+      </Text>
 
       <Button
         mode="contained"
@@ -98,44 +108,28 @@ const Diarylist = () => {
         </Button>
       )}
 
-      {/* Filter Date Picker */}
       {showFilterDatePicker && (
         <DateTimePicker
-        value={filterDate || new Date()}
-        mode="date"
-        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-        onChange={(event, selectedDate) => {
-          // If the event type is 'dismissed', it means the user canceled the picker, so we don't change the date
-          if (event.type === 'dismissed') {
-            setShowFilterDatePicker(false);  // Close the picker without changing the date
-            return;
-          }
+          value={filterDate || new Date()}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={(event, selectedDate) => {
+            if (event.type === 'dismissed') {
+              setShowFilterDatePicker(false);
+              return;
+            }
+            if (selectedDate) {
+              setFilterDate(selectedDate);
+            }
+            setShowFilterDatePicker(false);
+          }}
+        />
+      )}
 
-          // If the user selected a date, update the state
-          if (selectedDate) {
-            setFilterDate(selectedDate);
-          }
-          setShowFilterDatePicker(false);  // Close the picker after selection or cancellation
-        }}
-      />
-    )}
-
-      <FlatList
-        data={filteredEntries}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <Card style={styles.entryCard}>
-            <Card.Content>
-              <Title style={styles.entryTitle}>{item.date}</Title>
-              <Paragraph style={styles.entryText}>{item.text}</Paragraph>
-              <Text style={styles.entryRating}>Rating: {item.rating}</Text>
-            </Card.Content>
-            <Card.Actions style={styles.entryActions}>
-              <Button onPress={() => handleEdit(item)} style={styles.editButton} labelStyle={styles.editButtonLabel}>Edit</Button>
-              <Button onPress={() => handleDelete(item.id)} style={styles.deleteButton}>Delete</Button>
-            </Card.Actions>
-          </Card>
-        )}
+      <DiaryEntryList
+        entries={filteredEntries}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
       />
 
       {isModalVisible && editingEntry && (
