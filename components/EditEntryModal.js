@@ -25,16 +25,21 @@ const EditEntryModal = ({
     <View style={styles.modalContainer}>
       <View style={styles.modalContent}>
         <Text>Edit Entry</Text>
+
         <TextInput
           style={styles.input}
           value={text}
           onChangeText={setText}
           multiline
         />
+
         <Text style={styles.label}>Choose rating:</Text>
         <RatingPicker selectedValue={rating} onValueChange={setRating} />
 
         <Text style={styles.label}>Edit date:</Text>
+        {/* Näytetään valittu päivämäärä tekstinä */}
+        <Text>Selected: {date.toLocaleDateString()}</Text>
+
         <DateSelector
           date={date}
           showPicker={showPicker}
