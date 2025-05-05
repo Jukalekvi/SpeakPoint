@@ -3,19 +3,24 @@ import { StyleSheet } from 'react-native';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
-    paddingTop: 20,
+    padding: 15,
+    paddingTop: 5,
     backgroundColor: '#E0F2F1',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 20,
     textAlign: 'center',
     color: '#1E293B',
   },
+  infoText: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#333', // Hieman tummempi teksti
+    marginBottom: 5,
+  },
   calendar: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   entryBox: {
     marginVertical: 8,
@@ -53,6 +58,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textAlign: 'center',
     color: '#4B5563',  // Tummanharmaa väri
+    marginBottom: 5,
   },
   filterButton: {
     marginTop: 10,

@@ -95,7 +95,13 @@ const CalendarScreen = () => {
 
   return (
     <View style={styles.container}>
+      {/* Otsikko */}
       <Text style={styles.title}>Calendar with Ratings</Text>
+
+      {/* Infoteksti */}
+      <Text style={styles.subTitle}>
+        Welcome to the calendar! You can click on any day to see the latest entry for that date. Each day is marked with a color based on the rating of your entry. 
+      </Text>
 
       <Calendar
         markingType={'custom'}
