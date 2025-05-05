@@ -18,7 +18,7 @@ const DiaryEntryList = ({ entries, onEdit, onDelete }) => {
           </Card.Content>
           <Card.Actions style={styles.entryActions}>
             {onEdit && (
-              <Button onPress={() => onEdit(item)} style={styles.editButton}>
+              <Button onPress={() => onEdit(item)} style={styles.editButton} labelStyle={styles.editButtonLabel}>
                 Edit
               </Button>
             )}
