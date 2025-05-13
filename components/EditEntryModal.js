@@ -1,4 +1,3 @@
-import React from 'react';
 import { Modal, View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import RatingPicker from './RatingPicker';
 import DateSelector from './DateSelector';
@@ -37,7 +36,6 @@ const EditEntryModal = ({
         <RatingPicker selectedValue={rating} onValueChange={setRating} />
 
         <Text style={styles.label}>Edit date:</Text>
-        {/* Näytetään valittu päivämäärä tekstinä */}
         <Text>Selected: {date.toLocaleDateString()}</Text>
 
         <DateSelector

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, FlatList } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Calendar } from 'react-native-calendars';
 import { ref, onValue } from 'firebase/database';
@@ -36,24 +36,23 @@ const CalendarScreen = () => {
         let color;
         switch (entry.rating) {
           case 1:
-            color = '#ff0000'; // punainen
+            color = '#ff0000';
             break;
           case 2:
-            color = '#ff7f00'; // oranssi
+            color = '#ff7f00';
             break;
           case 3:
-            color = '#ffff00'; // keltainen
+            color = '#ffff00';
             break;
           case 4:
-            color = '#ccff66'; // kelta-vihreä sekoitus
+            color = '#ccff66';
             break;
           case 5:
-            color = '#00cc44'; // vihreä
+            color = '#00cc44';
             break;
           default:
-            color = '#d3d3d3'; // oletus
+            color = '#d3d3d3';
         }
-        
 
         newMarkedDates[formatted] = {
           customStyles: {
@@ -76,19 +75,17 @@ const CalendarScreen = () => {
   const onDayPress = (day) => {
     setSelectedDate(day.dateString);
 
-    // Muotoillaan valittu päivä
     const [year, month, dayNum] = day.dateString.split('-');
     const formatted = `${parseInt(dayNum)}.${parseInt(month)}.${year}`;
 
-    // Suodatetaan merkinnät valitulle päivälle ja otetaan vain viimeisin
     const filteredEntries = entries
       .filter(entry => entry.date === formatted)
-      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Oletetaan, että merkinnöissä on aikaleima
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
     if (filteredEntries.length > 0) {
-      setLatestEntry(filteredEntries[0]); // Asetetaan viimeisin merkintä
+      setLatestEntry(filteredEntries[0]);
     } else {
-      setLatestEntry(null); // Ei merkintöjä valitulle päivälle
+      setLatestEntry(null);
     }
   };
 
@@ -107,10 +104,8 @@ const CalendarScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Otsikko */}
       <Text style={styles.title}>Calendar with Ratings</Text>
 
-      {/* Infoteksti */}
       <Text style={styles.subTitle}>
         Welcome to the calendar! You can click on any day to see the latest entry for that date. Each day is marked with a color based on the rating of your entry. 
       </Text>

@@ -1,6 +1,4 @@
-// components/DiaryEntryList.js
-import React from 'react';
-import { FlatList, Alert } from 'react-native';
+import { FlatList } from 'react-native';
 import { Card, Title, Paragraph, Text, Button } from 'react-native-paper';
 import styles from '../styles';
 

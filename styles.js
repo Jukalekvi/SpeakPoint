@@ -1,34 +1,56 @@
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
+  // Laatikot
   container: {
     flex: 1,
     padding: 15,
     paddingTop: 5,
     backgroundColor: '#E0F2F1',
   },
+  entryBox: {
+    marginVertical: 8,
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    elevation: 0,
+    borderWidth: 0,
+    borderColor: 'transparent',
+  },
+  entryCard: {
+    marginBottom: 12,
+    elevation: 3,
+    backgroundColor: '#ffffff',
+  },
+  entryActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  input: {
+    backgroundColor: '#E0F2F1',
+    alignItems: 'center',
+    height: '30%',
+  },
+
+  // Teksti
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#1E293B',
   },
+  subTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'center',
+    color: '#4B5563',
+    marginBottom: 5,
+  },
   infoText: {
     fontSize: 16,
     textAlign: 'center',
-    color: '#333', // Hieman tummempi teksti
+    color: '#333',
     marginBottom: 5,
-  },
-  calendar: {
-    marginBottom: 10,
-  },
-  entryBox: {
-    marginVertical: 8,
-    borderRadius: 12,  // Pyöreät kulmat
-    backgroundColor: '#FFFFFF',  // Valkoinen tausta
-    elevation: 0,  // Poistaa varjon
-    borderWidth: 0,  // Poistaa mahdolliset reunat
-    borderColor: 'transparent',  // Poistaa mahdolliset näkyvät reunat
   },
   entryTitle: {
     fontSize: 20,
@@ -43,24 +65,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
   },
-  entryCard: {
-    marginBottom: 12,  // Lisää tilaa korttien väliin
-    elevation: 3,  // Lisää varjo kortille, jos haluat
-    backgroundColor: '#ffffff',  // Varmista, että kortin taustaväri on valkoinen
+  editButtonLabel: {
+    color: '#FFFFFF',
   },
-  entryActions: {
-    flexDirection: 'row',  // Asetetaan nappulat vaakasuunnassa
-    justifyContent: 'space-between',  // Jaa tilaa tasaisesti nappuloiden välillä
-    width: '100%',  // Varmistetaan, että nappulat vievät koko tilan
-  },
-  subTitle: {
-    fontSize: 16,
-    fontWeight: '500',
-    textAlign: 'center',
-    color: '#4B5563',  // Tummanharmaa väri
-    marginBottom: 5,
-  },
-  filterButton: {
+
+  // Painikkeet
+  button: {
     marginTop: 10,
     marginBottom: 10,
     alignSelf: 'center',
@@ -69,7 +79,7 @@ const styles = StyleSheet.create({
     width: '80%',
     backgroundColor: '#008080',
   },
-  button: {
+  filterButton: {
     marginTop: 10,
     marginBottom: 10,
     alignSelf: 'center',
@@ -86,28 +96,25 @@ const styles = StyleSheet.create({
     width: '40%',
     color: '#FFFFFF',
   },
-  editButtonLabel: {
-    color: '#FFFFFF',  // Tekstin väri valkoinen
-  },
   deleteButton: {
-    backgroundColor: '#D32F2F',  // Punainen väri varoitukselle
+    backgroundColor: '#D32F2F',
     borderRadius: 10,
     paddingVertical: 6,
     width: '40%',
     marginLeft: '10%',
   },
   filterDateButton: {
-    marginBottom: 10,  // Voit säätää välejä
-    alignSelf: 'stretch',  // Voit halutessasi tehdä painikkeesta laajentuvan
+    marginBottom: 10,
+    alignSelf: 'stretch',
   },
-  input:{
-    backgroundColor: '#E0F2F1',
-    alignItems: 'center',
-    height:'30%'
+
+  // Muut komponentit
+  calendar: {
+    marginBottom: 10,
   },
-  picker:{
-    textAlign:'center',
-    borderWidth:1,
+  picker: {
+    textAlign: 'center',
+    borderWidth: 1,
   },
 });
 

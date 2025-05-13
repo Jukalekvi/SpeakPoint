@@ -1,9 +1,8 @@
-import * as React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
 
-import HomeScreen from './screens/Homescreen'; // Tuodaan HomeScreen
-import CalendarScreen from './screens/Calendarscreen'; // Tuodaan CalendarScreen
+import HomeScreen from './screens/Homescreen';
+import CalendarScreen from './screens/Calendarscreen';
 import Diaryscreen from './screens/Diaryscreen';
 import Diarylist from './screens/Diarylist';
 

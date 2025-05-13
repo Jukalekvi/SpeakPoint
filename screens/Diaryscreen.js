@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Alert } from 'react-native';
 import { Button, TextInput, Text } from 'react-native-paper';
 import { ref, onValue, set, remove } from 'firebase/database';
@@ -8,7 +8,6 @@ import { useNavigation } from '@react-navigation/native';
 import RatingPicker from '../components/RatingPicker';
 import DateSelector from '../components/DateSelector';
 import EditEntryModal from '../components/EditEntryModal';
-import DiaryEntryList from '../components/DiaryEntryList';
 
 import styles from '../styles';
 
@@ -35,10 +34,9 @@ const DiaryScreen = () => {
       const entryList = data
         ? Object.entries(data).map(([id, value]) => ({ id, ...value }))
         : [];
-      
-      // Lajitellaan merkinnät ja otetaan vain viimeisin
+
       const sortedEntries = entryList.sort((a, b) => new Date(b.date) - new Date(a.date));
-      setEntries(sortedEntries.slice(0, 1)); // Tämä ottaa vain viimeisimmän merkinnän
+      setEntries(sortedEntries.slice(0, 1));
     });
 
     return () => unsubscribe();
@@ -101,9 +99,8 @@ const DiaryScreen = () => {
     <View style={styles.container}>
       <Text style={styles.title}>Diary</Text>
 
-      {/* Infoteksti lisäämisen alkuun */}
       <Text style={styles.infoText}>
-      Here you can add new diary entries, edit or delete existing entries.
+        Here you can add new diary entries, edit or delete existing entries.
       </Text>
 
       <TextInput
